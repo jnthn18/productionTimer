@@ -13,8 +13,47 @@ $app->post('/addBreak', 'addBreak');
 $app->post('/getBreaks', 'getBreaks');
 $app->post('/deleteBreak', 'deleteBreak');
 $app->post('/updateDept', 'updateDept');
+$app->get('/loadDepts', 'loadDepts');
+
 
 $app->run();
+
+function loadDepts() {
+  $sqlDepts = "SELECT * FROM settings";
+  try {
+    $db = getConnection();
+    $stmt = $db->prepare($sqlDepts);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo json_encode($e->getMessage());
+  }
+
+  $resultsDept = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $allDepts = array();
+
+  try{
+    $sqlBreaks = "SELECT * FROM breaks WHERE department = :department && active = 1";
+
+    $stmtBreaks = $db->prepare($sqlBreaks);
+    foreach($resultsDept as $dept) {
+      $stmtBreaks->bindParam(":department", $dept["id"]);
+      $stmtBreaks->execute();
+
+      $breaks = $stmtBreaks->fetchAll(PDO::FETCH_ASSOC);
+
+      $fullDept = array("settings" => $dept, "breaks" => $breaks);
+
+      array_push($allDepts, $fullDept);
+
+    }
+  } catch (PDOException $e) {
+    echo json_encode($e->getMessage());
+  }
+
+  echo json_encode($allDepts);
+  
+
+}
 
 function updateDept($request, $response) {
   $department = (int) $request->getParam('department');

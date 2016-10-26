@@ -34,13 +34,16 @@
     })
     .controller('Timer.IndexController', Controller);
 
-  function Controller($interval, $scope) {
+  function Controller($interval, $scope, $http) {
     var vm = this;
 
     $scope.max = 100;
 
+    $scope.departments = [];
+    $scope.selectedDept = null;
+
     //5 min
-    var cycle = 35 * 60 * 1000;
+    var cycle = 1 * 60 * 1000;
 
     $scope.timer = cycle;
 
@@ -50,23 +53,10 @@
     $scope.currentTime = Date.now();
     $scope.startTime = $scope.date.setHours(9,30,0);
     $scope.endTime = $scope.date.setHours(19,0,0);
+
     $scope.message = '';
     $scope.workingHours = true;
     $scope.color = '#2ecc71';
-
-    var break1 = {
-      startTime: $scope.date.setHours(14,38,55),
-      addedTime: 4.5 * 60 * 1000,
-      active: 1
-    }
-
-    var break2 = {
-      startTime: $scope.date.setHours(16,40,25),
-      addedTime: 30 * 1000,
-      active: 1
-    }
-
-    var breaks = [break1, break2];
 
     function updateTimer() {
       workStatus();
@@ -81,32 +71,63 @@
       $scope.currentTime = Date.now();
 
       // check if break needs to be added
-      angular.forEach(breaks, function(b) {
-        if (Date.now() >= b.startTime && b.active == 1) {
-          $scope.timer = $scope.timer + b.addedTime;
-          b.active = 0;
-        }
-      });
+      // angular.forEach(breaks, function(b) {
+      //   if (Date.now() >= b.startTime && b.active == 1) {
+      //     $scope.timer = $scope.timer + b.addedTime;
+      //     b.active = 0;
+      //   }
+      // });
       $scope.color = timerColor();
     }
 
-    function initialize() {
+    $scope.loadTimer = function() {
+      console.log($scope.selectedDept);
+
+      $scope.currentTime = Date.now();
+      //set some local variables
+      var breaks = $scope.selectedDept.breaks;
+      var settings = $scope.selectedDept.settings;
+
+      //convert to local time
+      settings.start = new Date(settings.start);
+      settings.end = new Date(settings.end);
+      cycle = parseInt(settings.cycle, 10);
+
+      $scope.timer = cycle;
+
+      $scope.progress = $scope.timer / cycle;
+
+      //get hours and minutes from start/end
+      var startHours = settings.start.getHours();
+      var startMin = settings.start.getMinutes();
+      var endHours = settings.end.getHours();
+      var endMin = settings.end.getMinutes();
+
+      $scope.startTime = new Date().setHours(startHours, startMin, 0);
+      $scope.endTime = new Date().setHours(endHours, endMin, 0);
+
       //calculate how far into the current cycle
       var diff = $scope.currentTime - $scope.startTime;
 
       //check for any breaks that have occured and add time to diff
-      angular.forEach(breaks, function(b) {
-        if (Date.now() >= b.startTime && b.active == 1) {
-          diff = diff + b.addedTime;
-          b.active = 0;
-        }
-      });
+      // angular.forEach(breaks, function(b) {
+      //   if (Date.now() >= b.startTime && b.active == 1) {
+      //     diff = diff + b.addedTime;
+      //     b.active = 0;
+      //   }
+      // });
 
       var timeIntoCycle = diff % cycle;
       $scope.timer = $scope.timer - timeIntoCycle;
 
       $scope.color = timerColor();
       workStatus();
+    }
+
+    function initialize() {
+      $http.get('api/loadDepts').then(function(resp) {
+        $scope.departments = resp.data;
+      });
     }
 
     function workStatus() {
