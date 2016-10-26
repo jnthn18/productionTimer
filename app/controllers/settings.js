@@ -5,7 +5,7 @@
     .module('app')
     .controller('Settings.IndexController', Controller);
 
-  function Controller($stateParams, $window, $state, $http) {
+  function Controller($stateParams, $window, $state, $http, $timeout) {
     var vm = this;
 
     vm.department = $stateParams.department || $window.localStorage.getItem('atDepartment');
@@ -21,6 +21,7 @@
     vm.selectedDept = null;
     vm.submitted = false;
     vm.breaks = [];
+    vm.updateSuccess = false;
 
     //for adding breaks
     vm.breakStart = null;
@@ -41,6 +42,7 @@
     vm.createDept = createDept;
     vm.formToggle = formToggle;
     vm.setDept = setDept;
+    vm.updateDept = updateDept;
     vm.addBreak = addBreak;
     vm.openDatePicker = openDatePicker;
     vm.deleteBreak = deleteBreak;
@@ -50,6 +52,27 @@
     }
 
     init();
+
+    function updateDept() {
+      var cycleTime = vm.cycle * 60 * 1000;
+
+      var data = {
+        department: vm.department,
+        start: vm.startTime,
+        end: vm.endTime,
+        cycle: cycleTime
+      }
+
+      $http.post('api/updateDept', data).then(function(resp) {
+        if (resp.status == 200) {
+          vm.updateSuccess = true;
+          $timeout(function() {
+            vm.updateSuccess = false
+          }, 1500);
+        }
+      });
+
+    }
 
     function checkDays() {
       if (vm.checkboxDays.monday == true || vm.checkboxDays.tuesday == true || vm.checkboxDays.wednesday == true || vm.checkboxDays.thursday == true || vm.checkboxDays.friday == true) {
@@ -91,7 +114,7 @@
         startWeek: vm.selectedInterval == 'weekly' ? null : vm.breakStartDate
       }
 
-      if (checkDays()) {
+      if (checkDays() || vm.selectedInterval == 'date') {
         $http.post('api/addBreak', data).then(function(resp) {
           if (resp.status == 202) {
             vm.submitted = false;
@@ -107,6 +130,9 @@
             vm.selectedInterval = 'weekly';
             vm.breakStartDate = null;
           }
+          $http.post('api/getBreaks', { department: department.id }).then(function(resp) {
+            vm.breaks = resp.data.breaks;
+          });
         });
       }
     }

@@ -1,6 +1,6 @@
 <div class="container">
   <div class="col-md-8 col-md-offset-2">
-    <h1>Timer Admin Panel <span style="float:right;"><button type="button" class="btn btn-default">Logout</button></span></h1>
+    <h1>Timer Admin Panel <span style="float:right;"><button type="button" class="btn btn-default" ui-sref="logout">Logout</button></span></h1>
     <div class="btn-group" ng-show="vm.role == 1">
       <button type="button" class="btn" ng-class=" !vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = false; vm.formToggle()">Manage Department</button>
       <button type="button" class="btn" ng-class=" vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = true; vm.formToggle()">Create Department</button>
@@ -30,6 +30,9 @@
       </div>
 
       <button type="button" class="btn btn-primary" ng-click="vm.createDept()" ng-disabled="dept.$invalid" ng-show="vm.addDept">Create Department</button>
+      <p class="alert alert-success" ng-show="vm.updateSuccess">
+        <i class="glyphicon glyphicon-ok"></i> Settings Updated
+      </p>
       <button type="button" class="btn btn-primary" ng-click="vm.updateDept()" ng-disabled="dept.$invalid" ng-hide="vm.addDept">Update Settings</button>
     </form>
     <br>
@@ -58,6 +61,7 @@
                 <span ng-show="b.wednesday == 1">Wed</span>
                 <span ng-show="b.thursday == 1">Thu</span>
                 <span ng-show="b.friday == 1">Fri</span>
+                <span ng-show="b.breakInterval == 'date'">{{ b.startWeek | date:'mediumDate' }}</span>
               </td>
               <td>
                 <button class="btn btn-link" ng-click="vm.deleteBreak(b.id)">Delete</button>

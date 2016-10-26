@@ -26,7 +26,18 @@
         controller: 'Settings.IndexController',
         controllerAs: 'vm',
         params: { department: null, role: null }
+      })
+      .state('logout', {
+        template: '',
+        controller: logout
       });
+
+      function logout($state, $window, $rootScope) {
+          $rootScope.loggedIn = false;
+          $window.localStorage.removeItem('timerRole');
+          $window.localStorage.removeItem('atDepartment');
+          $state.go('home');
+        }
   }
 
 })();

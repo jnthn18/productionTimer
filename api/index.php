@@ -12,8 +12,31 @@ $app->post('/getDept', 'getDept');
 $app->post('/addBreak', 'addBreak');
 $app->post('/getBreaks', 'getBreaks');
 $app->post('/deleteBreak', 'deleteBreak');
+$app->post('/updateDept', 'updateDept');
 
 $app->run();
+
+function updateDept($request, $response) {
+  $department = (int) $request->getParam('department');
+  $startTime = $request->getParam('start');
+  $endTime = $request->getParam('end');
+  $cycle = $request->getParam('cycle');
+
+  $sql = "UPDATE settings SET start = :start, cycle = :cycle, end = :end WHERE id = :department";
+  try {
+    $db = getConnection();
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(":department", $department);
+    $stmt->bindParam(":cycle", $cycle);
+    $stmt->bindParam(":start", $startTime);
+    $stmt->bindParam(":end", $endTime);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo json_encode($e->getMessage());
+    $response->withStatus(406);
+  }
+
+}
 
 function deleteBreak($request, $response) {
   $breakID = (int) $request->getParam('breakID');
