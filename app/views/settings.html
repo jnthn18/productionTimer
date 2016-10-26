@@ -1,0 +1,36 @@
+<div class="container">
+  <div class="col-md-8 col-md-offset-2">
+    <h1>Timer Admin Panel <span style="float:right;"><button type="button" class="btn btn-default">Logout</button></span></h1>
+    <div class="btn-group" >
+      <button type="button" class="btn" ng-class=" !vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = false; vm.formToggle()">Manage Department</button>
+      <button type="button" class="btn" ng-class=" vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = true; vm.formToggle()">Create Department</button>
+    </div>
+    <form name="dept" novalidate>
+      <h2 ng-hide="vm.addDept"><select ng-model="vm.selectedDept" ng-options="dept.name for dept in vm.departments" ng-show="vm.departments.length > 1" ng-change="vm.setDept(vm.selectedDept)"></select> <span ng-show="vm.departments.length == 1">{{ vm.departmentName }}</span></h2>
+      <h2 ng-show="vm.addDept">Create Department</h2>
+
+      <div class="form-group" ng-show="vm.admin && vm.addDept">
+        <label>Department Name</label>
+        <input type="text" class="form-control" name="deptName" ng-model="vm.departmentName" required>
+      </div>
+
+      <div class="form-group">
+        <label>Start Time</label>
+        <input type="time" class="form-control" name="start" ng-model="vm.startTime" required>
+      </div>
+
+      <div class="form-group">
+        <label>End Time</label>
+        <input type="time" class="form-control" name="end" ng-model="vm.endTime" required>
+      </div>
+
+      <div class="form-group">
+        <label>Cycle Time (in Minutes)</label>
+        <input type="number" class="form-control" name="cycle" ng-model="vm.cycle" required>
+      </div>
+
+      <button type="button" class="btn btn-primary" ng-click="vm.createDept()" ng-disabled="dept.$invalid" ng-show="vm.addDept">Create Department</button>
+      <button type="button" class="btn btn-primary" ng-click="vm.updateDept()" ng-disabled="dept.$invalid" ng-hide="vm.addDept">Update Settings</button>
+    </form>
+  </div>
+</div>

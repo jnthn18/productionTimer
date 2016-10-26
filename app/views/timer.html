@@ -1,0 +1,10 @@
+<div class="progress-wrapper">
+  <div class="progress-timer">
+    {{ timer | millSecondsToTimeString }}
+  </div>
+  <round-progress max="max" current="progress" color="{{color}}" bgcolor="#eaeaea" radius="400" stroke="40" ng-show="workingHours"></round-progress>
+</div>
+<h2>{{ currentTime | date:'mediumTime' }}</h2>
+<h3>{{ startTime | date:'shortTime' }}</h3>
+<h3>{{ endTime | date:'shortTime' }}</h3>
+<h3>{{ message }}</h3>

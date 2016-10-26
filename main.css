@@ -1,0 +1,15 @@
+.progress-wrapper {
+  position: relative;
+  margin: 20px auto;
+  font-size: 3.8em;
+  text-align: center;
+}
+.progress-timer {
+  position: absolute;
+  color: #bbb;
+  top: 50%;
+  left: 50%;
+  bottom: auto;
+  transform: translateY(-50%) translateX(-50%);
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
