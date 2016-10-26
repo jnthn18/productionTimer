@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('app', ['ui.router', 'angular-svg-round-progressbar'])
+    .module('app', ['ui.router', 'angular-svg-round-progressbar', 'ui.bootstrap'])
     .config(config);
 
   function config($stateProvider, $urlRouterProvider) {

@@ -9,8 +9,81 @@ $app->post('/login', 'loginUser');
 $app->post('/addDept', 'addDept');
 $app->get('/allDept', 'allDept');
 $app->post('/getDept', 'getDept');
+$app->post('/addBreak', 'addBreak');
+$app->post('/getBreaks', 'getBreaks');
+$app->post('/deleteBreak', 'deleteBreak');
 
 $app->run();
+
+function deleteBreak($request, $response) {
+  $breakID = (int) $request->getParam('breakID');
+
+  $sql = "DELETE FROM breaks WHERE id = :breakID";
+  try {
+    $db = getConnection();
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(":breakID", $breakID);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo json_encode($e->getMessage());
+  }
+
+  return $response->withStatus(200);
+}
+
+function getBreaks($request, $response) {
+  $department = (int) $request->getParam('department');
+
+  $sql = "SELECT * FROM breaks WHERE department = :department AND active = 1";
+  try {
+    $db = getConnection();
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(":department", $department);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo json_encode($e->getMessage());
+  }
+
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $response->withJson(array("breaks" => $result), 200);
+}
+
+function addBreak($request, $response) {
+  $department = $request->getParam('department');
+  $startTime = $request->getParam('startTime');
+  $addedTime = $request->getParam('breakTime');
+  $interval = $request->getParam('interval');
+  $days = $request->getParam('days');
+  $startWeek = $request->getParam('startWeek');
+  $monday = $days['monday'];
+  $tuesday = $days['tuesday'];
+  $wednesday = $days['wednesday'];
+  $thursday = $days['thursday'];
+  $friday = $days['friday'];
+
+  $sql = "INSERT INTO breaks (department, startTime, addedTime, breakInterval, monday, tuesday, wednesday, thursday, friday, startWeek) VALUES (:department, :startTime, :addedTime, :breakInterval, :monday, :tuesday, :wednesday, :thursday, :friday, :startWeek)";
+  try {
+    $db = getConnection();
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':department', $department);
+    $stmt->bindParam(':startTime', $startTime);
+    $stmt->bindParam(':addedTime', $addedTime);
+    $stmt->bindParam(':breakInterval', $interval);
+    $stmt->bindParam(':monday', $monday);
+    $stmt->bindParam(':tuesday', $tuesday);
+    $stmt->bindParam(':wednesday', $wednesday);
+    $stmt->bindParam(':thursday', $thursday);
+    $stmt->bindParam(':friday', $friday);
+    $stmt->bindParam(':startWeek', $startWeek);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+    return $response->withStatus(406);
+  }
+
+  return $response->withStatus(202);
+}
 
 function getDept($request, $response) {
   $department = (int) $request->getParam('department');

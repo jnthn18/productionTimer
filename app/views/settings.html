@@ -1,7 +1,7 @@
 <div class="container">
   <div class="col-md-8 col-md-offset-2">
     <h1>Timer Admin Panel <span style="float:right;"><button type="button" class="btn btn-default">Logout</button></span></h1>
-    <div class="btn-group" >
+    <div class="btn-group" ng-show="vm.role == 1">
       <button type="button" class="btn" ng-class=" !vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = false; vm.formToggle()">Manage Department</button>
       <button type="button" class="btn" ng-class=" vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = true; vm.formToggle()">Create Department</button>
     </div>
@@ -32,5 +32,94 @@
       <button type="button" class="btn btn-primary" ng-click="vm.createDept()" ng-disabled="dept.$invalid" ng-show="vm.addDept">Create Department</button>
       <button type="button" class="btn btn-primary" ng-click="vm.updateDept()" ng-disabled="dept.$invalid" ng-hide="vm.addDept">Update Settings</button>
     </form>
+    <br>
+    <hr>
+    <div>
+      <h3>Manage Breaks</h3>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="text-center">Start Time</th>
+              <th class="text-center">Break Time</th>
+              <th class="text-center">Break Interval</th>
+              <th class="text-center">Day(s)</th>
+              <th class="text-center"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="b in vm.breaks" class="text-center">
+              <td>{{ b.startTime | date:'shortTime' }}</td>
+              <td>{{ b.addedTime / 60 / 1000 }} min</td>
+              <td>{{ b.breakInterval }}</td>
+              <td>
+                <span ng-show="b.monday == 1">Mon</span>
+                <span ng-show="b.tuesday == 1">Tues</span>
+                <span ng-show="b.wednesday == 1">Wed</span>
+                <span ng-show="b.thursday == 1">Thu</span>
+                <span ng-show="b.friday == 1">Fri</span>
+              </td>
+              <td>
+                <button class="btn btn-link" ng-click="vm.deleteBreak(b.id)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <hr>
+      <h3>Schedule Break</h3>
+      <div style="padding-bottom: 60px;">
+        <form name="addBreak" novalidate>
+          <div class="form-group">
+            <label>Break Start</label>
+            <input type="time" class="form-control" name="breakStart" ng-model="vm.breakStart" required>
+          </div>
+          <div class="form-group">
+            <label>Break Time (in Minutes)</label>
+            <input type="number" class="form-control" name="breakTime" ng-model="vm.breakTime" required>
+          </div>
+          <div class="form-group">
+            <label>Break Days <select ng-model="vm.selectedInterval" style="width: 100px;">
+              <option value="weekly">Weekly</option>
+              <option value="bi-weekly">Bi-Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="date">Single Day</option>
+            </select></label>
+            <div ng-hide="vm.selectedInterval == 'date'">
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.checkboxDays.monday"> Monday
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.checkboxDays.tuesday"> Tuesday
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.checkboxDays.wednesday"> Wednesday
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.checkboxDays.thursday"> Thursday
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.checkboxDays.friday"> Friday
+              </label>
+              <div class="has-error" ng-show="vm.submitted && vm.checkDays() == false">
+                <p class="help-block" >Please select at least one day.</p>
+              </div>
+            </div>
+            
+          </div>
+
+          <label ng-hide="vm.selectedInterval == 'weekly' || vm.selectedInterval == 'date'">Start Week (select the monday)</label>
+          <label ng-show="vm.selectedInterval == 'date'">Please select a date</label>
+          <div class="input-group" ng-hide="vm.selectedInterval == 'weekly'">
+            <input type="text" class="form-control" uib-datepicker-popup ng-model="vm.breakStartDate" is-open="vm.popup.opened" close-text="Close" />
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" ng-click="vm.openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+          </div>
+          <br>
+          <button type="button" class="btn btn-primary" ng-click="vm.addBreak()" ng-disabled="addBreak.$invalid">Add Break</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
