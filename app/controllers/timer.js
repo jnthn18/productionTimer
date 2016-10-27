@@ -101,13 +101,8 @@
       $scope.progress = $scope.timer / cycle;
 
       //get hours and minutes from start/end
-      var startHours = settings.start.getHours();
-      var startMin = settings.start.getMinutes();
-      var endHours = settings.end.getHours();
-      var endMin = settings.end.getMinutes();
-
-      $scope.startTime = new Date().setHours(startHours, startMin, 0);
-      $scope.endTime = new Date().setHours(endHours, endMin, 0);
+      $scope.startTime = new Date().setHours(settings.start.getHours(), settings.start.getMinutes(), 0);
+      $scope.endTime = new Date().setHours(settings.end.getHours(), settings.end.getMinutes(), 0);
 
       //calculate how far into the current cycle
       var diff = $scope.currentTime - $scope.startTime;
@@ -122,11 +117,23 @@
             if (checkActiveWeek(b)) { breaksToday.push(b) }
           }
         } else {
-          //stuff for specific date
-          console.log(b);
+          //this is scheduled dates
+          b.startWeek = new Date(b.startWeek);
+          if ($scope.date.getDate() == b.startWeek.getDate() && $scope.date.getMonth() == b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear()) {
+            breaksToday.push(b);
+          }
+
+          //disable old dates
+          if ($scope.date.getDate() > b.startWeek.getDate() && $scope.date.getMonth() >= b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear() ) {
+            $http.post('api/disableDate', { breakID: b.id }).then(function(resp) {
+              if (resp.status == 202) { console.log("date disabled") }
+            });
+          }
         }
         
       });
+
+      console.log(breaksToday);
 
       //check for any breaks that have occured and add time to diff
       angular.forEach(breaksToday, function(b) {

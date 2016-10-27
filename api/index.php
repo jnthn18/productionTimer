@@ -14,9 +14,26 @@ $app->post('/getBreaks', 'getBreaks');
 $app->post('/deleteBreak', 'deleteBreak');
 $app->post('/updateDept', 'updateDept');
 $app->get('/loadDepts', 'loadDepts');
+$app->post('/disableDate', 'disableDate');
 
 
 $app->run();
+
+function disableDate($request, $response) {
+  $breakID = (int) $request->getParam('breakID');
+
+  $sql = "UPDATE breaks SET active = 0 WHERE id = :breakID";
+  try {
+    $db = getConnection();
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(":breakID", $breakID);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo json_encode($e->getMessage());
+  }
+
+  return $response->withStatus(202);
+}
 
 function loadDepts() {
   $sqlDepts = "SELECT * FROM settings";
@@ -51,7 +68,6 @@ function loadDepts() {
   }
 
   echo json_encode($allDepts);
-  
 
 }
 
