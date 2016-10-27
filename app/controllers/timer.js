@@ -44,6 +44,7 @@
 
     //5 min
     var cycle = 1 * 60 * 1000;
+    var refreshBreaks = true;
     $scope.timer = cycle;
 
     $scope.progress = $scope.timer / cycle;
@@ -85,11 +86,9 @@
     }
 
     $scope.loadTimer = function() {
-      console.log($scope.selectedDept);
       breaksToday = [];
-      updateBreaks();
-
       $scope.currentTime = Date.now();
+      
       //set some local variables
       var breaks = $scope.selectedDept.breaks;
       var settings = $scope.selectedDept.settings;
@@ -106,6 +105,7 @@
       //calculate how far into the current cycle
       var diff = $scope.currentTime - $scope.startTime;
 
+      updateBreaks();
 
       //check for breaks that will be applied today
       todaysBreaks(breaks, breaksToday);
@@ -157,6 +157,23 @@
     }
 
     function updateBreaks() {
+      var afterHours = $scope.currentTime > $scope.endTime ? true : false;
+      var beforeHours = $scope.currentTime < $scope.startTime ? true : false;
+
+      var refreshCheck = new Date();
+
+      console.log(refreshCheck.getHours());
+      console.log(refreshCheck.getMinutes());
+      
+      //refresh all breaks at 6 am this removes deleted breaks
+      if (refreshCheck.getHours == 6 && refreshCheck.getMinutes() == 0 && refreshBreaks == true) {
+        breaksToday = [];
+        refreshBreaks = false;
+      }
+      //next pass reset refreshBreaks
+      if (refreshCheck.getHours == 6 && refreshCheck.getMinutes() > 0) {
+        refreshBreaks = true;
+      }
       $http.post('api/getBreaks', { department: $scope.selectedDept.settings.id }).then(function(resp) {
         var newBreaks = resp.data.breaks;
         newBreaksToday = [];

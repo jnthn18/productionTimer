@@ -165,6 +165,12 @@
       $http.post('api/addDept', data).then(function(resp) {
         if (resp.status == 202) {
           formToggle(data);
+          $http.get('api/allDept').then(function(resp) {
+            //set to newest department
+            vm.departments = resp.data;
+            vm.selectedDept = vm.departments[vm.departments.length-1];
+            setDept(vm.departments[vm.departments.length-1]);
+          });
         } else {
           console.log("check error");
         }
