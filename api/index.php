@@ -22,7 +22,7 @@ $app->run();
 function disableDate($request, $response) {
   $breakID = (int) $request->getParam('breakID');
 
-  $sql = "UPDATE breaks SET active = 0 WHERE id = :breakID";
+  $sql = "DELETE FROM breaks WHERE id = :breakID";
   try {
     $db = getConnection();
     $stmt = $db->prepare($sql);

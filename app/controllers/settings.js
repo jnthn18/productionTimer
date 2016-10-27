@@ -22,6 +22,7 @@
     vm.submitted = false;
     vm.breaks = [];
     vm.updateSuccess = false;
+    vm.notMonday = false;
 
     //for adding breaks
     vm.breakStart = null;
@@ -46,6 +47,8 @@
     vm.addBreak = addBreak;
     vm.openDatePicker = openDatePicker;
     vm.deleteBreak = deleteBreak;
+    vm.checkActiveWeek = checkActiveWeek;
+    vm.weekRemainder = weekRemainder;
 
     if (!vm.department || !vm.role) {
       $state.go('login');
@@ -114,26 +117,37 @@
         startWeek: vm.selectedInterval == 'weekly' ? null : vm.breakStartDate
       }
 
-      if (checkDays() || vm.selectedInterval == 'date') {
-        $http.post('api/addBreak', data).then(function(resp) {
-          if (resp.status == 202) {
-            vm.submitted = false;
-            vm.breakStart = null;
-            vm.breakTime = null;
-            vm.checkboxDays = {
-              monday : false,
-              tuesday: false,
-              wednesday: false,
-              thursday: false,
-              friday: false
-            };
-            vm.selectedInterval = 'weekly';
-            vm.breakStartDate = null;
-          }
-          $http.post('api/getBreaks', { department: department.id }).then(function(resp) {
-            vm.breaks = resp.data.breaks;
-          });
-        });
+      if ( data.startWeek == null ) {
+        var mondayCheck = true;
+      } else {
+        var mondayCheck = vm.breakStartDate.getDay() == 1 ? true : false;
+      }
+
+      if (checkDays() && mondayCheck || vm.selectedInterval == 'date') {
+        vm.notMonday = false;
+        // $http.post('api/addBreak', data).then(function(resp) {
+        //   if (resp.status == 202) {
+        //     vm.submitted = false;
+        //     vm.breakStart = null;
+        //     vm.breakTime = null;
+        //     vm.checkboxDays = {
+        //       monday : false,
+        //       tuesday: false,
+        //       wednesday: false,
+        //       thursday: false,
+        //       friday: false
+        //     };
+        //     vm.selectedInterval = 'weekly';
+        //     vm.breakStartDate = null;
+        //   }
+        //   $http.post('api/getBreaks', { department: vm.selectedDept.id }).then(function(resp) {
+        //     vm.breaks = resp.data.breaks;
+        //   });
+        // });
+      } else {
+        if (!mondayCheck) {
+          vm.notMonday = true;
+        }
       }
     }
 
@@ -198,6 +212,40 @@
       $http.post('api/getBreaks', { department: department.id }).then(function(resp) {
         vm.breaks = resp.data.breaks;
       });
+    }
+
+    function checkActiveWeek(b) {
+      var week = 7 * 24 * 60 * 60 * 1000;
+      var currentDate = new Date();
+      if (b.breakInterval == "bi-weekly" || b.breakInterval == "monthly") {
+        var start = new Date(b.startWeek);
+
+        var thisWeek = Date.parse(currentDate) - Date.parse(start);
+        var weekComparison = null;
+        b.timeInterval == "bi-weekly" ? weekComparison = 2 : weekComparison = 4;
+
+        var activeWeek = Math.floor(thisWeek / week) % weekComparison;
+        return thisWeek > 0 && activeWeek == 0 ? 'text-success' : 'text-danger';
+      } else {
+        return "";
+      }
+    }
+
+    function weekRemainder(b) {
+      var week = 7 * 24 * 60 * 60 * 1000;
+      var currentDate = new Date();
+      if (b.breakInterval == "bi-weekly" || b.breakInterval == "monthly") {
+        var start = new Date(b.startWeek);
+
+        var thisWeek = Date.parse(currentDate) - Date.parse(start);
+        var weekComparison = null;
+        b.timeInterval == "bi-weekly" ? weekComparison = 2 : weekComparison = 4;
+
+        var activeWeek = Math.floor(thisWeek / week) % weekComparison;
+        return activeWeek == 0 ? "" : activeWeek;
+      } else {
+        return "";
+      }
     }
 
   }
