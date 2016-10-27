@@ -125,25 +125,25 @@
 
       if (checkDays() && mondayCheck || vm.selectedInterval == 'date') {
         vm.notMonday = false;
-        // $http.post('api/addBreak', data).then(function(resp) {
-        //   if (resp.status == 202) {
-        //     vm.submitted = false;
-        //     vm.breakStart = null;
-        //     vm.breakTime = null;
-        //     vm.checkboxDays = {
-        //       monday : false,
-        //       tuesday: false,
-        //       wednesday: false,
-        //       thursday: false,
-        //       friday: false
-        //     };
-        //     vm.selectedInterval = 'weekly';
-        //     vm.breakStartDate = null;
-        //   }
-        //   $http.post('api/getBreaks', { department: vm.selectedDept.id }).then(function(resp) {
-        //     vm.breaks = resp.data.breaks;
-        //   });
-        // });
+        $http.post('api/addBreak', data).then(function(resp) {
+          if (resp.status == 202) {
+            vm.submitted = false;
+            vm.breakStart = null;
+            vm.breakTime = null;
+            vm.checkboxDays = {
+              monday : false,
+              tuesday: false,
+              wednesday: false,
+              thursday: false,
+              friday: false
+            };
+            vm.selectedInterval = 'weekly';
+            vm.breakStartDate = null;
+          }
+          $http.post('api/getBreaks', { department: vm.selectedDept.id }).then(function(resp) {
+            vm.breaks = resp.data.breaks;
+          });
+        });
       } else {
         if (!mondayCheck) {
           vm.notMonday = true;

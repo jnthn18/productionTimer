@@ -51,10 +51,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="b in vm.breaks" class="text-center line-adjust" ng-class="vm.checkActiveWeek(b)">
+            <tr ng-repeat="b in vm.breaks | orderBy:'startTime'" class="text-center line-adjust" ng-class="vm.checkActiveWeek(b)">
               <td>{{ b.startTime | date:'shortTime' }}</td>
               <td>{{ b.addedTime / 60 / 1000 }} min</td>
-              <td>{{ b.breakInterval }} <span ng-show="b.breakInterval == 'bi-weekly' || b.breakInterval == 'monthly'" ng-hide="vm.weekRemainder(b) == 0 || b.breakInterval == 'bi-weekly'"> <span style="font-size: 10px;">active in {{ vm.weekRemainder(b) }} wks</span></span></td>
+              <td>{{ b.breakInterval }} <span ng-show="b.breakInterval == 'bi-weekly' || b.breakInterval == 'monthly'" ng-hide="vm.weekRemainder(b) == 0 || b.breakInterval == 'bi-weekly'"><div style="line-height:16px;">active in {{ vm.weekRemainder(b) }} weeks</span></div></td>
               <td>
                 <span ng-show="b.monday == 1">Mon</span>
                 <span ng-show="b.tuesday == 1">Tues</span>
