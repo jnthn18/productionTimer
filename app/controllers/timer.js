@@ -58,7 +58,7 @@
     $scope.color = '#2ecc71';
 
     var breaksToday = [];
-    var breakTime = 0;
+    var newBreaksToday = [];
 
     function updateTimer() {
       workStatus();
@@ -74,8 +74,10 @@
 
       // check if break needs to be added
       angular.forEach(breaksToday, function(b) {
+        b.startTime = new Date(b.startTime);
+        b.startTime = new Date().setHours(b.startTime.getHours(), b.startTime.getMinutes(), 0);
         if ($scope.currentTime >= b.startTime && b.active == 1) {
-          $scope.timer = $scope.timer + b.addedTime;
+          $scope.timer = $scope.timer + parseInt(b.addedTime, 10);
           b.active = 0;
         }
       });
@@ -85,6 +87,7 @@
     $scope.loadTimer = function() {
       console.log($scope.selectedDept);
       breaksToday = [];
+      updateBreaks();
 
       $scope.currentTime = Date.now();
       //set some local variables
@@ -96,10 +99,6 @@
       settings.end = new Date(settings.end);
       cycle = parseInt(settings.cycle, 10);
 
-      $scope.timer = cycle;
-
-      $scope.progress = $scope.timer / cycle;
-
       //get hours and minutes from start/end
       $scope.startTime = new Date().setHours(settings.start.getHours(), settings.start.getMinutes(), 0);
       $scope.endTime = new Date().setHours(settings.end.getHours(), settings.end.getMinutes(), 0);
@@ -107,47 +106,25 @@
       //calculate how far into the current cycle
       var diff = $scope.currentTime - $scope.startTime;
 
+
       //check for breaks that will be applied today
-      angular.forEach(breaks, function(b) {
-
-        if (b.breakInterval == "weekly") {
-          if (checkWeekly(b)) { breaksToday.push(b) }
-        } else if (b.breakInterval == "bi-weekly" || b.breakInterval == "monthly") {
-          if (checkWeekly(b)) {
-            if (checkActiveWeek(b)) { breaksToday.push(b) }
-          }
-        } else {
-          //this is scheduled dates
-          b.startWeek = new Date(b.startWeek);
-          if ($scope.date.getDate() == b.startWeek.getDate() && $scope.date.getMonth() == b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear()) {
-            breaksToday.push(b);
-          }
-
-          //disable old dates
-          if ($scope.date.getDate() > b.startWeek.getDate() && $scope.date.getMonth() >= b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear() ) {
-            $http.post('api/disableDate', { breakID: b.id }).then(function(resp) {
-              if (resp.status == 202) { console.log("date disabled") }
-            });
-          }
-        }
-        
-      });
-
-      console.log(breaksToday);
+      todaysBreaks(breaks, breaksToday);
 
       //check for any breaks that have occured and add time to diff
       angular.forEach(breaksToday, function(b) {
         b.startTime = new Date(b.startTime);
         b.startTime = new Date().setHours(b.startTime.getHours(), b.startTime.getMinutes(), 0);
+        //make sure all breaks are active before being checked
+        b.active = 1;
         if ($scope.currentTime >= b.startTime && b.active == 1) {
-          diff = diff + b.addedTime;
+          diff = diff + parseInt(b.addedTime, 10);
           b.active = 0;
-          breakTime += parseInt(b.addedTime, 10);
         }
       });
 
       var timeIntoCycle = diff % cycle;
-      $scope.timer = $scope.timer - timeIntoCycle;
+      $scope.timer = cycle - timeIntoCycle;
+      $scope.progress = $scope.timer / cycle;
 
       $scope.color = timerColor();
       workStatus();
@@ -177,6 +154,53 @@
           return b.friday == "1" ? true : false;
           break;
       }
+    }
+
+    function updateBreaks() {
+      $http.post('api/getBreaks', { department: $scope.selectedDept.settings.id }).then(function(resp) {
+        var newBreaks = resp.data.breaks;
+        newBreaksToday = [];
+
+        todaysBreaks(newBreaks, newBreaksToday);
+
+        // check breaksToday vs newBreaksToday
+        angular.forEach(newBreaksToday, function(b) {
+          var inArr = false;
+          for (var i = 0; i < breaksToday.length; i++) {
+            if (breaksToday[i].id === b.id) { inArr = true; }
+          }
+          //not in breaksToday so add it, timer will be updated next cycle
+          if (!inArr) { breaksToday.push(b); }
+        });
+
+      });
+    }
+
+    function todaysBreaks(breaks, arr) {
+      angular.forEach(breaks, function(b) {
+
+        if (b.breakInterval == "weekly") {
+          if (checkWeekly(b)) { arr.push(b) }
+        } else if (b.breakInterval == "bi-weekly" || b.breakInterval == "monthly") {
+          if (checkWeekly(b)) {
+            if (checkActiveWeek(b)) { arr.push(b) }
+          }
+        } else {
+          //this is scheduled dates
+          b.startWeek = new Date(b.startWeek);
+          if ($scope.date.getDate() == b.startWeek.getDate() && $scope.date.getMonth() == b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear()) {
+            arr.push(b);
+          }
+
+          //disable old dates
+          if ($scope.date.getDate() > b.startWeek.getDate() && $scope.date.getMonth() >= b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear() ) {
+            $http.post('api/disableDate', { breakID: b.id }).then(function(resp) {
+              if (resp.status == 202) { console.log("date disabled") }
+            });
+          }
+        }
+        
+      });
     }
 
     function checkActiveWeek(b) {
@@ -218,6 +242,11 @@
 
     $interval(function() {
       updateTimer();
+      $scope.date = new Date();
+      // every 5 minutes get new breaks
+      if ($scope.date.getMinutes() % 5 == 0 && $scope.date.getSeconds() < 2) {
+        updateBreaks();
+      }
     }, 1000);
 
     initialize();
