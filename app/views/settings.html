@@ -6,7 +6,7 @@
       <button type="button" class="btn" ng-class=" vm.addDept ? 'btn-primary' : 'btn-default' " ng-click="vm.addDept = true; vm.formToggle()">Create Department</button>
     </div>
     <form name="dept" novalidate>
-      <h2 ng-hide="vm.addDept"><select ng-model="vm.selectedDept" class="form-control" ng-options="dept.id + ' - ' + dept.name for dept in vm.departments" ng-show="vm.departments.length > 1" ng-change="vm.setDept(vm.selectedDept)"></select> <span ng-show="vm.departments.length == 1">{{ vm.departmentName }}</span></h2>
+      <h2 ng-hide="vm.addDept"><select ng-model="vm.selectedDept" class="form-control" ng-options="dept.id + ' - ' + dept.name for dept in vm.departments" ng-show="vm.departments.length > 1" ng-change="vm.setDept(vm.selectedDept)"></select> <span ng-show="vm.departments.length == 1">{{ vm.department }} - {{ vm.departmentName }}</span></h2>
       <h2 ng-show="vm.addDept">Create Department</h2>
 
       <div class="form-group" ng-show="vm.admin && vm.addDept">
