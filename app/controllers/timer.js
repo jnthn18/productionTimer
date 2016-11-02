@@ -117,7 +117,9 @@
         //make sure all breaks are active before being checked
         b.active = 1;
         if ($scope.currentTime >= b.startTime && b.active == 1) {
-          diff = diff + parseInt(b.addedTime, 10);
+
+          diff = diff - parseInt(b.addedTime, 10);
+          console.log(diff);
           b.active = 0;
         }
       });
