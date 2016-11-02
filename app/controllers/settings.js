@@ -66,7 +66,7 @@
         cycle: cycleTime
       }
 
-      $http.post('api/updateDept', data).then(function(resp) {
+      $http.post('api/index.php/updateDept', data).then(function(resp) {
         if (resp.status == 200) {
           vm.updateSuccess = true;
           $timeout(function() {
@@ -90,9 +90,9 @@
         breakID: id
       };
 
-      $http.post('api/deleteBreak', data).then(function(resp) {
+      $http.post('api/index.php/deleteBreak', data).then(function(resp) {
         if (resp.status == 200) {
-          $http.post('api/getBreaks', { department: vm.department }).then(function(resp) {
+          $http.post('api/index.php/getBreaks', { department: vm.department }).then(function(resp) {
             vm.breaks = resp.data.breaks;
           });
         }
@@ -125,7 +125,7 @@
 
       if (checkDays() && mondayCheck || vm.selectedInterval == 'date') {
         vm.notMonday = false;
-        $http.post('api/addBreak', data).then(function(resp) {
+        $http.post('api/index.php/addBreak', data).then(function(resp) {
           if (resp.status == 202) {
             vm.submitted = false;
             vm.breakStart = null;
@@ -140,7 +140,7 @@
             vm.selectedInterval = 'weekly';
             vm.breakStartDate = null;
           }
-          $http.post('api/getBreaks', { department: vm.selectedDept.id }).then(function(resp) {
+          $http.post('api/index.php/getBreaks', { department: vm.selectedDept.id }).then(function(resp) {
             vm.breaks = resp.data.breaks;
           });
         });
@@ -162,10 +162,10 @@
         cycle: cycleTime
       }
       
-      $http.post('api/addDept', data).then(function(resp) {
+      $http.post('api/index.php/addDept', data).then(function(resp) {
         if (resp.status == 202) {
           formToggle(data);
-          $http.get('api/allDept').then(function(resp) {
+          $http.get('api/index.php/allDept').then(function(resp) {
             //set to newest department
             vm.departments = resp.data;
             vm.selectedDept = vm.departments[vm.departments.length-1];
@@ -192,7 +192,7 @@
 
       if (vm.role == 1) {
         vm.admin = true;
-        $http.get('api/allDept').then(function(resp) {
+        $http.get('api/index.php/allDept').then(function(resp) {
           vm.departments = resp.data;
           vm.selectedDept = vm.departments[0];
           setDept(vm.departments[0]);
@@ -201,7 +201,7 @@
         var data = {
           department: 2
         }
-        $http.post('api/getDept', data).then(function(resp) {
+        $http.post('api/index.php/getDept', data).then(function(resp) {
           var department = resp.data.department;
           vm.departments[0] = department;
           setDept(department);
@@ -215,7 +215,7 @@
       vm.cycle = department.cycle / 60 / 1000;
       vm.departmentName = department.name;
       vm.department = department.id;
-      $http.post('api/getBreaks', { department: department.id }).then(function(resp) {
+      $http.post('api/index.php/getBreaks', { department: department.id }).then(function(resp) {
         vm.breaks = resp.data.breaks;
       });
     }

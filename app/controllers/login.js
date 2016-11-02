@@ -19,7 +19,7 @@
         'password': vm.password
       }
 
-      $http.post('api/login', data).then(function(resp) {
+      $http.post('api/index.php/login', data).then(function(resp) {
         if (resp.status == 202) {
           $window.localStorage.setItem("timerRole", resp.data.role);
           $window.localStorage.setItem("atDepartment", resp.data.department);

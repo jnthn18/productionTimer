@@ -1,16 +1,11 @@
-
 <div class="progress-wrapper" ng-hide="!workingHours">
   <div class="progress-timer">
     {{ timer | millSecondsToTimeString }}
   </div>
-  <round-progress max="max" current="progress" color="{{color}}" bgcolor="#eaeaea" radius="400" stroke="40" ng-show="workingHours"></round-progress>
-</div>
-<div class="container">
-  <h1 class="text-center">{{ message }}</h1>
-  <div class="col-sm-2 col-sm-offset-5 text-center">
-    <h2>
-      <select ng-model="selectedDept" class="form-control" ng-options="dept.settings.name for dept in departments" ng-change="loadTimer()"></select>
-    </h2>
+  <round-progress max="max" current="progress" color="{{color}}" bgcolor="#eaeaea" radius="450" stroke="50" ng-show="workingHours"></round-progress>
+  <div class="container">
+    <h1 class="text-center">{{ message }}</h1>
   </div>
 </div>
+
 

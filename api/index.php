@@ -3,7 +3,7 @@ require 'vendor/autoload.php';
 use Zend\Config\Config;
 use Zend\Config\Factory;
 
-$app = new \Slim\App;
+$app = new \Slim\App();
 
 $app->post('/login', 'loginUser');
 $app->post('/addDept', 'addDept');

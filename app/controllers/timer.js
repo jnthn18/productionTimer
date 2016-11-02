@@ -34,7 +34,7 @@
     })
     .controller('Timer.IndexController', Controller);
 
-  function Controller($interval, $scope, $http) {
+  function Controller($interval, $scope, $http, $stateParams) {
     var vm = this;
 
     $scope.max = 100;
@@ -131,8 +131,12 @@
     }
 
     function initialize() {
-      $http.get('api/loadDepts').then(function(resp) {
+      $http.get('api/index.php/loadDepts').then(function(resp) {
         $scope.departments = resp.data;
+        angular.forEach(resp.data, function (d) {
+          if (d.settings.id == $stateParams.id) { $scope.selectedDept = d; }
+        });
+        $scope.loadTimer();
       });
     }
 
@@ -161,9 +165,6 @@
       var beforeHours = $scope.currentTime < $scope.startTime ? true : false;
 
       var refreshCheck = new Date();
-
-      console.log(refreshCheck.getHours());
-      console.log(refreshCheck.getMinutes());
       
       //refresh all breaks at 6 am this removes deleted breaks
       if (refreshCheck.getHours == 6 && refreshCheck.getMinutes() == 0 && refreshBreaks == true) {
@@ -174,7 +175,7 @@
       if (refreshCheck.getHours == 6 && refreshCheck.getMinutes() > 0) {
         refreshBreaks = true;
       }
-      $http.post('api/getBreaks', { department: $scope.selectedDept.settings.id }).then(function(resp) {
+      $http.post('api/index.php/getBreaks', { department: $scope.selectedDept.settings.id }).then(function(resp) {
         var newBreaks = resp.data.breaks;
         newBreaksToday = [];
 
@@ -211,7 +212,7 @@
 
           //disable old dates
           if ($scope.date.getDate() > b.startWeek.getDate() && $scope.date.getMonth() >= b.startWeek.getMonth() && $scope.date.getFullYear() == b.startWeek.getFullYear() ) {
-            $http.post('api/disableDate', { breakID: b.id }).then(function(resp) {
+            $http.post('api/index.php/disableDate', { breakID: b.id }).then(function(resp) {
               if (resp.status == 202) { console.log("date disabled") }
             });
           }

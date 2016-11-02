@@ -10,9 +10,10 @@
 
     $stateProvider
       .state('home', {
-        url: '/',
+        url: '/?id',
         templateUrl: 'app/views/timer.html',
-        controller: 'Timer.IndexController'
+        controller: 'Timer.IndexController',
+        params: { id: null }
       })
       .state('login', {
         url: '/login',
