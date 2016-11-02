@@ -170,6 +170,7 @@
             vm.departments = resp.data;
             vm.selectedDept = vm.departments[vm.departments.length-1];
             setDept(vm.departments[vm.departments.length-1]);
+            vm.addDept = false;
           });
         } else {
           console.log("check error");
